@@ -365,6 +365,7 @@ public class Minecraft implements IThreadListener {
 
 		try {
 			this.startGame();
+			net.minecraft.client.myclient.MyClient.init();
 		} catch (Throwable throwable) {
 			CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Initializing game");
 			crashreport.makeCategory("Initialization");
@@ -1168,6 +1169,7 @@ public class Minecraft implements IThreadListener {
 	 * Runs the current tick.
 	 */
 	public void runTick() throws IOException {
+		net.minecraft.client.myclient.MyClient.onTick();
 		if (this.rightClickDelayTimer > 0) {
 			--this.rightClickDelayTimer;
 		}
@@ -1412,8 +1414,12 @@ public class Minecraft implements IThreadListener {
 				}
 				KeyBinding.setKeyBindState(k, Keyboard.getEventKeyState());
 				if (Keyboard.getEventKeyState()) {
-					KeyBinding.onTick(k);
-				}
+    KeyBinding.onTick(k);
+    net.minecraft.client.myclient.MyClient.onKey(k);
+    if (k == net.lax1dude.eaglercraft.v1_8.internal.KeyboardConstants.KEY_RSHIFT) {
+        if (this.currentScreen == null) displayGuiScreen(new net.minecraft.client.myclient.gui.ClickGUI());
+    }
+}
 
 				if (this.debugCrashKeyPressTime > 0L) {
 					if (getSystemTime() - this.debugCrashKeyPressTime >= 6000L) {

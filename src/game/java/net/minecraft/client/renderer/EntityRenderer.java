@@ -947,6 +947,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 						GlStateManager.enableOverlayFramebufferBlending();
 						if (b) {
 							this.mc.ingameGUI.renderGameOverlay(parFloat1);
+							 net.minecraft.client.myclient.MyClient.onRender(parFloat1);
 						}
 						GlStateManager.disableOverlayFramebufferBlending();
 						this.overlayFramebuffer.endRender();
