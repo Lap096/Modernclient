@@ -711,6 +711,7 @@ public class Minecraft implements IThreadListener {
 		GlStateManager.disableFog();
 		GlStateManager.enableAlpha();
 		GlStateManager.alphaFunc(GL_GREATER, 0.1F);
+		net.minecraft.client.myclient.MyClient.onRender(this.timer.renderPartialTicks);
 		this.updateDisplay();
 	}
 
@@ -2358,13 +2359,27 @@ public class Minecraft implements IThreadListener {
 	}
 
 	public void dispatchKeypresses() {
-		int i = Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() : Keyboard.getEventKey();
-		if (i != 0 && !Keyboard.isRepeatEvent()) {
-			if (!(this.currentScreen instanceof GuiControls)
-					|| ((GuiControls) this.currentScreen).time <= getSystemTime() - 20L) {
-				if (Keyboard.getEventKeyState()) {
-					if (i == this.gameSettings.keyBindScreenshot.getKeyCode()) {
-						this.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot());
+    int i = Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() : Keyboard.getEventKey();
+
+    if (i != 0 && !Keyboard.isRepeatEvent()) {
+        if (!(this.currentScreen instanceof GuiControls)
+                || ((GuiControls) this.currentScreen).time <= getSystemTime() - 20L) {
+
+            if (Keyboard.getEventKeyState()) {
+
+                net.minecraft.client.myclient.MyClient.onKey(i);
+
+              if (i == net.lax1dude.eaglercraft.v1_8.internal.KeyboardConstants.KEY_RSHIFT) {
+    
+
+    this.displayGuiScreen(
+        new net.minecraft.client.myclient.gui.ClickGUI()
+    );
+}
+
+                if (i == this.gameSettings.keyBindScreenshot.getKeyCode()) {
+                    this.ingameGUI.getChatGUI()
+                        .printChatMessage(ScreenShotHelper.saveScreenshot());
 					}
 				}
 			}
