@@ -69,7 +69,7 @@ import net.minecraft.world.storage.ISaveFormat;
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
+public class GuiMainMenu extends net.minecraft.client.myclient.gui.HelixMainMenu {
 	private static final Logger logger = LogManager.getLogger();
 	private static final EaglercraftRandom RANDOM = new EaglercraftRandom();
 	private float updateCounter;

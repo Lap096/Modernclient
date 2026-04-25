@@ -1,5 +1,8 @@
 package net.minecraft.client.myclient;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.myclient.gui.HelixMainMenu;
+
 public class MyClient {
 
     public static final String NAME    = "Helix Client";
@@ -12,22 +15,29 @@ public class MyClient {
         if (initialized) return;
         initialized = true;
         System.out.println("[Helix Client] v" + VERSION + " loading...");
-        ModuleManager.init();
-        System.out.println("[Helix Client] Loaded " + ModuleManager.getModules().size() + " modules.");
+        try {
+            ModuleManager.init();
+            System.out.println("[Helix Client] Loaded " + ModuleManager.getModules().size() + " modules.");
+        } catch (Exception e) {
+            System.out.println("[Helix Client] ModuleManager failed!");
+            e.printStackTrace();
+        }
     }
 
     public static void onTick() {
         if (!initialized) return;
-        ModuleManager.tick();
+        try { ModuleManager.tick(); } catch (Exception e) { e.printStackTrace(); }
     }
 
     public static void onRender(float partialTicks) {
         if (!initialized) return;
-        ModuleManager.renderTick(partialTicks);
+        try { ModuleManager.renderTick(partialTicks); } catch (Exception e) { e.printStackTrace(); }
     }
 
     public static void onKey(int keyCode) {
         if (!initialized) return;
-        ModuleManager.onKey(keyCode);
+        try { ModuleManager.onKey(keyCode); } catch (Exception e) { e.printStackTrace(); }
     }
+
+    public static boolean isInitialized() { return initialized; }
 }

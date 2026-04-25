@@ -502,67 +502,38 @@ public class Minecraft implements IThreadListener {
 		this.effectRenderer = new EffectRenderer(this.theWorld, this.renderEngine);
 		SkinPreviewRenderer.initialize();
 		this.checkGLError("Post startup");
-		this.ingameGUI = new GuiIngame(this);
+this.ingameGUI = new GuiIngame(this);
 
-		this.mouseGrabSupported = Mouse.isMouseGrabSupported();
-		PointerInputAbstraction.init(this);
+this.mouseGrabSupported = Mouse.isMouseGrabSupported();
+PointerInputAbstraction.init(this);
 
-		this.eagskullCommand = new SkullCommand(this);
-		this.voiceOverlay = new GuiVoiceOverlay(this);
-		this.voiceOverlay.setResolution(scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
+// FORCE MAIN MENU (temporary, not reliable)
+this.displayGuiScreen(new net.minecraft.client.myclient.gui.HelixMainMenu());
 
-		this.notifRenderer = new ServerNotificationRenderer();
-		this.notifRenderer.init();
-		this.notifRenderer.setResolution(this, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(),
-				scaledResolution.getScaleFactor());
-		this.touchOverlayRenderer = new TouchOverlayRenderer(this);
+this.eagskullCommand = new SkullCommand(this);
+this.voiceOverlay = new GuiVoiceOverlay(this);
+this.voiceOverlay.setResolution(scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
 
-		ServerList.initServerList(this);
-		EaglerProfile.read();
-		ServerCookieDataStore.load();
+this.notifRenderer = new ServerNotificationRenderer();
+this.notifRenderer.init();
+this.notifRenderer.setResolution(this, scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(),
+        scaledResolution.getScaleFactor());
 
-		GuiScreen mainMenu = new GuiMainMenu();
-		if (isDemo()) {
-			mainMenu = new GuiScreenDemoIntegratedServerStartup(mainMenu);
-		}
-		if (this.serverName != null) {
-			mainMenu = new GuiConnecting(mainMenu, this, this.serverName, this.serverPort);
-		}
+this.touchOverlayRenderer = new TouchOverlayRenderer(this);
 
-		mainMenu = new GuiScreenEditProfile(mainMenu);
 
-		if (!EagRuntime.getConfiguration().isForceProfanityFilter() && !gameSettings.hasShownProfanityFilter) {
-			mainMenu = new GuiScreenContentWarning(mainMenu);
-		}
 
-		boolean vsyncScreen = false;
-		if (EagRuntime.getConfiguration().isEnforceVSync() && Display.isVSyncSupported() && !gameSettings.enableVsync) {
-			gameSettings.enableVsync = true;
-			gameSettings.saveOptions();
-			vsyncScreen = true;
-		}
+// 🔥 FORCE YOUR MENU (final override)
 
-		int vidIssues = gameSettings.checkBadVideoSettings();
-		if (vidIssues != 0) {
-			mainMenu = new GuiScreenVideoSettingsWarning(mainMenu, vidIssues);
-		}
 
-		if (vsyncScreen) {
-			mainMenu = new GuiScreenVSyncReEnabled(mainMenu);
-		}
+// continue normal startup cleanup
+this.renderEngine.deleteTexture(this.mojangLogo);
+this.mojangLogo = null;
+this.loadingScreen = new LoadingScreenRenderer(this);
 
-		this.displayGuiScreen(mainMenu);
-
-		this.renderEngine.deleteTexture(this.mojangLogo);
-		this.mojangLogo = null;
-		this.loadingScreen = new LoadingScreenRenderer(this);
-
-		while (Mouse.next())
-			;
-		while (Keyboard.next())
-			;
-		while (Touch.next())
-			;
+while (Mouse.next());
+while (Keyboard.next());
+while (Touch.next());
 	}
 
 	private void registerMetadataSerializers() {
@@ -736,41 +707,64 @@ public class Minecraft implements IThreadListener {
 		Tessellator.getInstance().draw();
 	}
 
-	/**+
-	 * Sets the argument GuiScreen as the main (topmost visible)
-	 * screen.
-	 */
-	public void displayGuiScreen(GuiScreen guiScreenIn) {
-		if (this.currentScreen != null) {
-			this.currentScreen.onGuiClosed();
-		}
+/**+
+ * Sets the argument GuiScreen as the main (topmost visible)
+ * screen.
+ */
+public void displayGuiScreen(GuiScreen guiScreenIn) {
 
-		if (guiScreenIn == null && this.theWorld == null) {
-			guiScreenIn = new GuiMainMenu();
-		} else if (guiScreenIn == null && this.thePlayer.getHealth() <= 0.0F) {
-			guiScreenIn = new GuiGameOver();
-		}
+    // FORCE OVERRIDES ONLY WHEN NOTHING IS BEING SET
+    if (guiScreenIn == null) {
 
-		if (guiScreenIn instanceof GuiMainMenu) {
-			this.gameSettings.showDebugInfo = false;
-			this.ingameGUI.getChatGUI().clearChatMessages();
-		}
+        // 🔥 ADD THIS (username / name entry screen fix via state fallback)
+        if (this.theWorld == null && this.thePlayer == null) {
+            guiScreenIn = new net.minecraft.client.myclient.gui.HelixMainMenu();
+        }
 
-		this.currentScreen = (GuiScreen) guiScreenIn;
-		this.scaledResolution = new ScaledResolution(this);
-		if (guiScreenIn != null) {
-			this.setIngameNotInFocus();
-			((GuiScreen) guiScreenIn).setWorldAndResolution(this, scaledResolution.getScaledWidth(),
-					scaledResolution.getScaledHeight());
-			this.skipRenderWorld = false;
-		} else {
-			this.mcSoundHandler.resumeSounds();
-			this.setIngameFocus();
-		}
-		EagRuntime.getConfiguration().getHooks().callScreenChangedHook(
-				currentScreen != null ? currentScreen.getClass().getName() : null, scaledResolution.getScaledWidth(),
-				scaledResolution.getScaledHeight(), displayWidth, displayHeight, scaledResolution.getScaleFactor());
-	}
+        // 1. GAME OVER FIRST (highest priority)
+        if (this.thePlayer != null && this.thePlayer.getHealth() <= 0.0F) {
+            guiScreenIn = new GuiGameOver();
+        }
+
+        // 2. HELIX MAIN MENU (only true main menu state)
+        else if (this.theWorld == null && this.thePlayer == null) {
+            guiScreenIn = new net.minecraft.client.myclient.gui.HelixMainMenu();
+        }
+    }
+
+    // 3. close old screen
+    if (this.currentScreen != null) {
+        this.currentScreen.onGuiClosed();
+    }
+
+    // 4. set screen
+    this.currentScreen = guiScreenIn;
+    this.scaledResolution = new ScaledResolution(this);
+
+    if (guiScreenIn != null) {
+        this.setIngameNotInFocus();
+        guiScreenIn.setWorldAndResolution(
+            this,
+            scaledResolution.getScaledWidth(),
+            scaledResolution.getScaledHeight()
+        );
+        this.skipRenderWorld = false;
+    } else {
+        this.mcSoundHandler.resumeSounds();
+        this.setIngameFocus();
+    }
+
+    // hook
+    EagRuntime.getConfiguration().getHooks().callScreenChangedHook(
+        currentScreen != null ? currentScreen.getClass().getName() : null,
+        scaledResolution.getScaledWidth(),
+        scaledResolution.getScaledHeight(),
+        displayWidth,
+        displayHeight,
+        scaledResolution.getScaleFactor()
+    );
+}
+
 
 	public void shutdownIntegratedServer(GuiScreen cont) {
 		if (SingleplayerServerController.shutdownEaglercraftServer()
@@ -1770,7 +1764,7 @@ public class Minecraft implements IThreadListener {
 				}
 				ServerAddress addr = AddressResolver.resolveAddressFromURI(reconURI);
 				this.displayGuiScreen(
-						new GuiConnecting(new GuiMainMenu(), this, addr.getIP(), addr.getPort(), enableCookies));
+						new GuiConnecting(new net.minecraft.client.myclient.gui.HelixMainMenu(), this, addr.getIP(), addr.getPort(), enableCookies));
 			} else {
 				logger.warn("Server redirect blocked: {}", reconURI);
 			}
@@ -1856,10 +1850,10 @@ public class Minecraft implements IThreadListener {
 				Math.max(gameSettings.renderDistanceChunks, 2), worldSettingsIn);
 		EagRuntime.setMCServerWindowGlobal("singleplayer");
 		this.displayGuiScreen(new GuiScreenIntegratedServerBusy(
-				new GuiScreenSingleplayerConnecting(new GuiMainMenu(), "Connecting to " + folderName),
+				new GuiScreenSingleplayerConnecting(new net.minecraft.client.myclient.gui.HelixMainMenu(), "Connecting to " + folderName),
 				"singleplayer.busy.startingIntegratedServer", "singleplayer.failed.startingIntegratedServer",
 				() -> SingleplayerServerController.isWorldReady(), (t, u) -> {
-					Minecraft.this.displayGuiScreen(GuiScreenIntegratedServerBusy.createException(new GuiMainMenu(),
+					Minecraft.this.displayGuiScreen(GuiScreenIntegratedServerBusy.createException(new net.minecraft.client.myclient.gui.HelixMainMenu(),
 							((GuiScreenIntegratedServerBusy) t).failMessage, u));
 				}));
 	}

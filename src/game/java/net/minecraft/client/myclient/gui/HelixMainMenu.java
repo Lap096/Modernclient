@@ -1,9 +1,7 @@
 package net.minecraft.client.myclient.gui;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiOptions;
-import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.*;
+import net.minecraft.client.myclient.MyClient;
 
 public class HelixMainMenu extends GuiScreen {
 
@@ -11,8 +9,10 @@ public class HelixMainMenu extends GuiScreen {
 
     @Override
     public void initGui() {
+        MyClient.init();
         int cx = width / 2;
         int cy = height / 2;
+        buttonList.clear();
         buttonList.add(new GuiButton(1, cx - 100, cy - 10, 200, 24, "Multiplayer"));
         buttonList.add(new GuiButton(2, cx - 100, cy + 20, 200, 24, "Singleplayer"));
         buttonList.add(new GuiButton(3, cx - 100, cy + 50, 96, 24, "Options..."));
@@ -31,7 +31,7 @@ public class HelixMainMenu extends GuiScreen {
         int tx = width / 2;
         drawRect(0, height / 2 - 60, width, height / 2 - 59, 0x334c9eff);
         drawCenteredString(fontRendererObj, "\u00a7b\u00a7lHELIX \u00a7f\u00a7lCLIENT", tx, height / 2 - 95, 0xFFFFFFFF);
-        drawCenteredString(fontRendererObj, "\u00a77Built by \u00a7fBrad  \u00a78|  \u00a77v1.0.0", tx, height / 2 - 78, 0xFFFFFFFF);
+        drawCenteredString(fontRendererObj, "\u00a77Built by \u00a7fBrad \u00a78| \u00a77v1.0.0", tx, height / 2 - 78, 0xFFFFFFFF);
         drawRect(tx - 80, height / 2 - 68, tx + 80, height / 2 - 67, 0x554c9eff);
         drawCenteredString(fontRendererObj, "\u00a78crackedpvp.club", tx, height / 2 - 58, 0xFFFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -42,7 +42,7 @@ public class HelixMainMenu extends GuiScreen {
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 1: mc.displayGuiScreen(new GuiMultiplayer(this)); break;
-            case 2: mc.displayGuiScreen(new net.minecraft.client.gui.GuiSelectWorld(this)); break;
+            case 2: mc.displayGuiScreen(new GuiSelectWorld(this)); break;
             case 3: mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings)); break;
             case 4: mc.shutdown(); break;
         }
