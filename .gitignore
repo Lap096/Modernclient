@@ -16,3 +16,4 @@ bin
 /desktopRuntime/screenshots/*
 target_teavm_wasm_gc/javascript/classes.wast.html
 target_teavm_wasm_gc/javascript/classes.wasm.teadbg
+*.hprof
