@@ -712,58 +712,31 @@ while (Touch.next());
  * screen.
  */
 public void displayGuiScreen(GuiScreen guiScreenIn) {
+		if (guiScreenIn == null && this.theWorld == null) {
+			guiScreenIn = new net.minecraft.client.myclient.gui.HelixMainMenu();
+		} else if (guiScreenIn == null && this.thePlayer != null && this.thePlayer.getHealth() <= 0.0F) {
+			guiScreenIn = new GuiGameOver();
+		}
 
-    // FORCE OVERRIDES ONLY WHEN NOTHING IS BEING SET
-    if (guiScreenIn == null) {
+		if (this.currentScreen != null) {
+			this.currentScreen.onGuiClosed();
+		}
 
-        // 🔥 ADD THIS (username / name entry screen fix via state fallback)
-        if (this.theWorld == null && this.thePlayer == null) {
-            guiScreenIn = new net.minecraft.client.myclient.gui.HelixMainMenu();
-        }
-
-        // 1. GAME OVER FIRST (highest priority)
-        if (this.thePlayer != null && this.thePlayer.getHealth() <= 0.0F) {
-            guiScreenIn = new GuiGameOver();
-        }
-
-        // 2. HELIX MAIN MENU (only true main menu state)
-        else if (this.theWorld == null && this.thePlayer == null) {
-            guiScreenIn = new net.minecraft.client.myclient.gui.HelixMainMenu();
-        }
-    }
-
-    // 3. close old screen
-    if (this.currentScreen != null) {
-        this.currentScreen.onGuiClosed();
-    }
-
-    // 4. set screen
-    this.currentScreen = guiScreenIn;
-    this.scaledResolution = new ScaledResolution(this);
-
-    if (guiScreenIn != null) {
-        this.setIngameNotInFocus();
-        guiScreenIn.setWorldAndResolution(
-            this,
-            scaledResolution.getScaledWidth(),
-            scaledResolution.getScaledHeight()
-        );
-        this.skipRenderWorld = false;
-    } else {
-        this.mcSoundHandler.resumeSounds();
-        this.setIngameFocus();
-    }
-
-    // hook
-    EagRuntime.getConfiguration().getHooks().callScreenChangedHook(
-        currentScreen != null ? currentScreen.getClass().getName() : null,
-        scaledResolution.getScaledWidth(),
-        scaledResolution.getScaledHeight(),
-        displayWidth,
-        displayHeight,
-        scaledResolution.getScaleFactor()
-    );
-}
+		this.currentScreen = (GuiScreen) guiScreenIn;
+		this.scaledResolution = new ScaledResolution(this);
+		if (guiScreenIn != null) {
+			this.setIngameNotInFocus();
+			((GuiScreen) guiScreenIn).setWorldAndResolution(this, scaledResolution.getScaledWidth(),
+					scaledResolution.getScaledHeight());
+			this.skipRenderWorld = false;
+		} else {
+			this.mcSoundHandler.resumeSounds();
+			this.setIngameFocus();
+		}
+		EagRuntime.getConfiguration().getHooks().callScreenChangedHook(
+				currentScreen != null ? currentScreen.getClass().getName() : null, scaledResolution.getScaledWidth(),
+				scaledResolution.getScaledHeight(), displayWidth, displayHeight, scaledResolution.getScaleFactor());
+	}
 
 
 	public void shutdownIntegratedServer(GuiScreen cont) {

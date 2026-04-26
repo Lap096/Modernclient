@@ -41,7 +41,7 @@ public class HelixMainMenu extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
-            case 1: mc.displayGuiScreen(new GuiMultiplayer(this)); break;
+            case 1: mc.displayGuiScreen(new GuiMainMenu()); break;
             case 2: mc.displayGuiScreen(new GuiSelectWorld(this)); break;
             case 3: mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings)); break;
             case 4: mc.shutdown(); break;
