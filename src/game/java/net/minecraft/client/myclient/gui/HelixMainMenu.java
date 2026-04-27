@@ -1,9 +1,13 @@
 package net.minecraft.client.myclient.gui;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.myclient.MyClient;
+
 public class HelixMainMenu extends GuiScreen {
     private float time = 0f;
+
     @Override
     public void initGui() {
         MyClient.init();
@@ -15,6 +19,7 @@ public class HelixMainMenu extends GuiScreen {
         buttonList.add(new GuiButton(3, cx - 100, cy + 50, 96, 24, "Options..."));
         buttonList.add(new GuiButton(4, cx + 4,   cy + 50, 96, 24, "Quit"));
     }
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         time += 0.01f;
@@ -31,13 +36,17 @@ public class HelixMainMenu extends GuiScreen {
         drawRect(tx - 80, height / 2 - 68, tx + 80, height / 2 - 67, 0x554c9eff);
         drawCenteredString(fontRendererObj, "\u00a78ballcraft.cc", tx, height / 2 - 58, 0xFFFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
-        drawString(fontRendererObj, "\u00a78Helix Client v1.1 | EaglercraftX 12.0.0", 4, height - 10, 0xFFFFFFFF);
+        drawString(fontRendererObj, "\u00a78Helix Client v1.3 | EaglercraftX 1.8.8", 4, height - 10, 0xFFFFFFFF);
     }
+
     @Override
     protected void actionPerformed(GuiButton button) {
+        if (mc == null) mc = Minecraft.getMinecraft(); // Safety null check
+        
         switch (button.id) {
             case 1:
-                mc.displayGuiScreen(new GuiConnecting(this, mc, "wss://ballcraft.cc", 25565));
+                // Port 443 is standard for wss:// on Chromebooks
+                mc.displayGuiScreen(new GuiConnecting(this, mc, "wss://ballcraft.cc", 443));
                 break;
             case 2:
                 mc.displayGuiScreen(new GuiSelectWorld(this));
@@ -50,6 +59,8 @@ public class HelixMainMenu extends GuiScreen {
                 break;
         }
     }
+
     @Override
     public boolean doesGuiPauseGame() { return false; }
 }
+// Force Update Mon Apr 27 14:10:00 UTC 2026
